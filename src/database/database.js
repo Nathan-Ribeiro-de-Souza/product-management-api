@@ -1,11 +1,5 @@
-import { DatabaseSync } from 'node:sqlite'
+import pg from 'pg'
 
-export const database = new DatabaseSync('products.db')
+const {Pool} = pg
 
-database.exec(`
-  CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    price REAL NOT NULL
-  )
-`)
+export const database = new Pool()

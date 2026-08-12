@@ -43,8 +43,8 @@ export function createProduct(name, price) {
   return createProductRepository(name.trim(), price)
 }
 
-export function updateProduct(productId, name, price) {
-  const product = findProductByIdRepository(productId)
+export async function updateProduct(productId, name, price) {
+  const product = await findProductByIdRepository(productId)
 
   if (!product) return undefined
 

@@ -1,100 +1,87 @@
 import { database } from '../database/database.js'
 
-export function createProduct(name, price) {
-  const statement = database.prepare(`
-    INSERT INTO products (name, price)
-    VALUES (?, ?)
-  `)
+export async function createProduct(name, price) {
+  const result = await database.query(`
+    INSERT INTO products (name,price)
+    VALUES ($1, $2)
+    RETURNING id, name, price::float8 AS price`,
+  [name, price])
 
-  const result = statement.run(name, price)
-
-  return findProductById(Number(result.lastInsertRowid))
+  return result.rows[0]
 }
 
-export function findProductByName(name) {
-  const statement = database.prepare(`
-    SELECT id, name, price
-    FROM products
-    WHERE LOWER(name) = LOWER(?)
-  `)
+export async function findProductByName(name) {
+  const result = await database.query(`
+    SELECT id, name, price::float8 AS price FROM products
+    WHERE LOWER(name) = LOWER($1)`
+  ,[name.trim()])
 
-  return statement.get(name.trim())
+  return result.rows[0]
 }
 
-export function findProductById(productId) {
-  const statement = database.prepare(`
-    SELECT id, name, price
-    FROM products
-    WHERE id = ?
-  `)
+export async function findProductById(productId) {
+  const result = await database.query(`
+    SELECT id, name, price::float8 AS price FROM products
+    WHERE id = $1`,
+  [productId])
 
-  return statement.get(productId)
+  return result.rows[0]
 }
 
-export function deleteProductById(productId) {
-  const statement = database.prepare(`
+export async function deleteProductById(productId) {
+  const result = await database.query(`
     DELETE FROM products
-    WHERE id = ?
-  `)
+    WHERE id = $1`,
+  [productId])
 
-  const result = statement.run(productId)
-
-  return result.changes > 0
+  return result.rowCount > 0
 }
 
-export function updateProductById(productId, name, price) {
-  const statement = database.prepare(`
+export async function updateProductById(productId, name, price) {
+  const result = await database.query(`
     UPDATE products
-    SET name = ?, price = ?
-    WHERE id = ?
-  `)
+    SET name = $1, price = $2
+    WHERE id = $3
+    RETURNING id, name, price::float8 AS price`,
+  [name.trim(), price, productId])
 
-  const result = statement.run(name.trim(), price, productId)
-
-  if (result.changes === 0) return undefined
-
-  return findProductById(productId)
+  return result.rows[0]
 }
 
-export function findAllProducts() {
-  const statement = database.prepare(`
-    SELECT id, name, price
-    FROM products
-    ORDER BY id ASC
-  `)
+export async function findAllProducts() {
+  const result = await database.query(`
+    SELECT id, name, price::float8 AS price FROM products
+    ORDER BY id ASC`)
 
-  return statement.all()
+    return result.rows
 }
 
-export function findProductsByFilters( search, maxPrice ) {
-  const statement = database.prepare(`
-    SELECT id, name, price
-    FROM products
-    WHERE name LIKE ? AND price <= ?
-    ORDER BY id ASC
-  `)
+export async function findProductsByFilters( search, maxPrice ) {
+  const result = await database.query(`
+    SELECT id, name, price::float8 AS price FROM products
+    WHERE name ILIKE $1 AND price <= $2
+    ORDER BY id ASC`,
+  [`%${search.trim()}%`, maxPrice])
 
-  return statement.all(`%${search.trim()}%`, maxPrice)
+  return result.rows
 }
 
-export function findProductsByName(search) {
-  const statement = database.prepare(`
-    SELECT id, name, price
-    FROM products
-    WHERE name LIKE ?
+export async function findProductsByName(search) {
+  const result = await database.query(`
+    SELECT id, name, price::float8 AS price FROM products
+    WHERE name ILIKE $1
     ORDER BY id ASC
-  `)
+    `, [`%${search.trim()}%`])
 
-  return statement.all(`%${search.trim()}%`)
+    return result.rows
 }
 
-export function findProductsByMaxPrice(maxPrice) {
-  const statement = database.prepare(`
-    SELECT id, name, price
-    FROM products
-    WHERE price <= ?
-    ORDER BY id ASC
-  `)
+export async function findProductsByMaxPrice(maxPrice) {
+  const result = await database.query(`
+    SELECT id, name, price::float8 AS price FROM products
+    WHERE price <= $1
+    ORDER BY id ASC`
+  ,[maxPrice])
 
-  return statement.all(maxPrice)
+  return result.rows
 }

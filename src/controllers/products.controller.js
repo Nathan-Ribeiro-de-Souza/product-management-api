@@ -18,7 +18,7 @@ function parseProductId(value) {
   return productId
 }
 
-export function listProducts(request, response) {
+export async function listProducts(request, response) {
   const { search, maxPrice } = request.query
 
   const parsedMaxPrice =
@@ -33,14 +33,14 @@ export function listProducts(request, response) {
     })
   }
 
-  const products = getProducts(search, parsedMaxPrice)
+  const products = await getProducts(search, parsedMaxPrice)
 
   return response.status(200).json({
     products
   })
 }
 
-export function getProductById(request, response) {
+export async function getProductById(request, response) {
   const productId = parseProductId(request.params.id)
 
   if (!productId) {
@@ -49,7 +49,7 @@ export function getProductById(request, response) {
     })
   }
 
-  const product = getProductByIdService(productId)
+  const product = await getProductByIdService(productId)
 
   if (!product) {
     return response.status(404).json({
@@ -60,7 +60,7 @@ export function getProductById(request, response) {
   return response.status(200).json(product)
 }
 
-export function createProduct(request, response) {
+export async function createProduct(request, response) {
   const { name, price } = request.body
 
   if (
@@ -74,7 +74,7 @@ export function createProduct(request, response) {
     })
   }
 
-  const productAlreadyExists = getProductByName(name)
+  const productAlreadyExists = await getProductByName(name)
 
   if (productAlreadyExists) {
     return response.status(409).json({
@@ -82,12 +82,12 @@ export function createProduct(request, response) {
     })
   }
 
-  const newProduct = createProductService(name, price)
+  const newProduct = await createProductService(name, price)
 
   return response.status(201).json(newProduct)
 }
 
-export function updateProduct(request, response) {
+export async function updateProduct(request, response) {
   const productId = parseProductId(request.params.id)
   const { name, price } = request.body
 
@@ -121,7 +121,7 @@ export function updateProduct(request, response) {
     })
   }
 
-  const updatedProduct = updateProductService(productId, name, price)
+  const updatedProduct = await updateProductService(productId, name, price)
 
   if (!updatedProduct) {
     return response.status(404).json({
@@ -132,7 +132,7 @@ export function updateProduct(request, response) {
   return response.status(200).json(updatedProduct)
 }
 
-export function deleteProduct(request, response) {
+export async function deleteProduct(request, response) {
   const productId = parseProductId(request.params.id)
 
   if (!productId) {
@@ -141,7 +141,7 @@ export function deleteProduct(request, response) {
     })
   }
 
-  const deletedProduct = deleteProductService(productId)
+  const deletedProduct = await deleteProductService(productId)
 
   if (!deletedProduct) {
     return response.status(404).json({
@@ -155,7 +155,7 @@ export function deleteProduct(request, response) {
   })
 }
 
-export function replaceProduct(request, response) {
+export async function replaceProduct(request, response) {
   const productId = parseProductId(request.params.id)
   const { name, price } = request.body
 
@@ -176,7 +176,7 @@ export function replaceProduct(request, response) {
     })
   }
 
-  const replacedProduct = replaceProductService(productId, name, price)
+  const replacedProduct = await replaceProductService(productId, name, price)
 
   if (!replacedProduct) {
     return response.status(404).json({
