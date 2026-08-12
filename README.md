@@ -1,31 +1,32 @@
 # Product Management API
 
-RESTful API for product management built with Node.js, Express, and SQLite.
+RESTful API for product management built with Node.js, Express, and PostgreSQL.
 
 The project implements a complete CRUD system and follows a layered architecture to keep responsibilities separated and the code easier to maintain.
 
 ## Features
 
-- Create products
-- List all products
-- Find a product by ID
-- Search products by name
-- Filter products by maximum price
-- Update specific product fields with PATCH
-- Replace product data with PUT
-- Delete products
-- Product data validation
-- Duplicate product validation
-- SQLite database persistence
-- Health check endpoint
+* Create products
+* List all products
+* Find a product by ID
+* Search products by name
+* Filter products by maximum price
+* Update specific product fields with PATCH
+* Replace product data with PUT
+* Delete products
+* Product data validation
+* Duplicate product validation
+* PostgreSQL database persistence
+* Health check endpoint
 
 ## Technologies
 
-- Node.js
-- Express
-- SQLite
-- JavaScript
-- REST API
+* Node.js
+* Express
+* PostgreSQL
+* pg (node-postgres)
+* JavaScript
+* REST API
 
 ## Project Structure
 
@@ -64,11 +65,13 @@ Contains the application logic and coordinates operations between controllers an
 
 ### Repositories
 
-Handles database access and SQL queries.
+Handles PostgreSQL database access and SQL queries.
 
 ### Database
 
-Creates and manages the SQLite database and the products table.
+Creates a connection pool between the Node.js application and PostgreSQL using the `pg` package.
+
+Database connection settings are provided through environment variables.
 
 ## API Endpoints
 
@@ -139,6 +142,42 @@ Install dependencies:
 npm install
 ```
 
+### PostgreSQL Setup
+
+Create a PostgreSQL database:
+
+```sql
+CREATE DATABASE product_management;
+```
+
+Inside the `product_management` database, create the `products` table:
+
+```sql
+CREATE TABLE products (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name TEXT NOT NULL,
+  price NUMERIC(10, 2) NOT NULL
+);
+```
+
+### Environment Variables
+
+Create a `.env` file in the root of the project:
+
+```env
+PGHOST=localhost
+PGPORT=5432
+PGUSER=postgres
+PGPASSWORD=your_password
+PGDATABASE=product_management
+```
+
+Replace `your_password` with your PostgreSQL password.
+
+The `.env` file is ignored by Git and should not be committed to the repository.
+
+### Start the Server
+
 Start the development server:
 
 ```bash
@@ -181,4 +220,6 @@ Example response:
 
 This project is licensed under the MIT License.
 
-Dev
+## Author
+
+Nathan Ribeiro de Souza
